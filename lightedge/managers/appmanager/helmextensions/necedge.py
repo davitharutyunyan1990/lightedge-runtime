@@ -63,7 +63,7 @@ class NECEdge(HelmPythonClient):
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
 
-        logging.info('RECEIVED FROM EC:', print(response))   
+        logging.info('RECEIVED FROM EC:', response)   
 
         release = {"k8s_code": k8s_code,
                    "chart_dir": chart_dir,
