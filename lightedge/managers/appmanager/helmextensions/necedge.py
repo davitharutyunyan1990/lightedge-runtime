@@ -21,7 +21,6 @@ import os
 import yaml
 import requests
 import logging
-import json
 
 from helmpythonclient.client import HelmPythonClient
 
@@ -64,7 +63,7 @@ class NECEdge(HelmPythonClient):
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
 
-        logging.info('RECEIVED FROM EC: %s' % json.loads(response.text)   
+        logging.info('RECEIVED FROM EC: %s' % response.json())   
 
         release = {"k8s_code": k8s_code,
                    "chart_dir": chart_dir,
