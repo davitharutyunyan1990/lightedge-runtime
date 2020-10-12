@@ -21,12 +21,18 @@ import os
 import yaml
 import requests
 import logging
-import json
+
+from publisher import *
+
 
 from helmpythonclient.client import HelmPythonClient
 
+broker_endpoint = "192.168.0.60:5672"
+
 
 class NECEdge(HelmPythonClient):
+
+    message_to_publish = {}
 
     def __init__(self, **kwargs):
 
@@ -34,6 +40,8 @@ class NECEdge(HelmPythonClient):
 
         self.root = os.environ["EDGE_ROOT_URL"]
         self.releases = dict()
+        self.topic = "NetworkServiceIP"
+        
 
     def list(self, **kwargs):
 
@@ -64,8 +72,17 @@ class NECEdge(HelmPythonClient):
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
 
-        logging.info("HEADERS %s" % (response.headers))  
-        logging.info("TEXT %s" % (response.text)) 
+
+        """ Getting Pod's IP address and publishing on the broker """
+
+        logging.info("RESPONSE %s" % (response.json())) 
+        logging.info("TYPE -- >",  type(response.json()))  
+        logging.info("IP -- >",  )
+        logging.info("TYPE -- >",  type())
+
+        self.publish_ip(self.message_to_publish, ns_ip)
+
+        ####################################################
 
         release = {"k8s_code": k8s_code,
                    "chart_dir": chart_dir,
@@ -74,13 +91,17 @@ class NECEdge(HelmPythonClient):
 
         return release, None
 
-    def uninstall(self, release_name, **kwargs):
+    def uninstall(self, release_name,  **kwargs):
 
         url = "%s/api/v1/delete/app/%s" % (self.root, release_name)
         response = requests.delete(url)
 
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
+
+        del self.message_to_publish[release_name]
+        self.publish_ip(self.message_to_publish)
+
 
         del self.releases[release_name]
         return None, None
@@ -118,3 +139,15 @@ class NECEdge(HelmPythonClient):
             out_release["k8s_code"] = release_data["k8s_code"]
 
         return out_release
+
+    def publish_ip(self, self.message_to_publish, ns_ip)    
+
+        client = Producer(broker_endpoint, self.topic, self.message_to_publish, ns_ip)
+        container = Container(client)
+        events = EventInjector()
+        container.selectable(events)
+
+        qpid_thread = Thread(target=container.run)
+        qpid_thread.start()
+
+        logging.info("DONE PUBLISHING!!!") 
