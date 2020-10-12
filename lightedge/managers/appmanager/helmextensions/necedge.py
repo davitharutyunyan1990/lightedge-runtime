@@ -140,14 +140,14 @@ class NECEdge(HelmPythonClient):
 
         return out_release
 
-    def publish_ip(self, self.message_to_publish, ns_ip)    
+    # def publish_ip(self, message_to_publish, ns_ip)    
 
-        client = Producer(broker_endpoint, self.topic, self.message_to_publish, ns_ip)
-        container = Container(client)
-        events = EventInjector()
-        container.selectable(events)
+    #     client = Producer(broker_endpoint, self.topic, self.message_to_publish, ns_ip)
+    #     container = Container(client)
+    #     events = EventInjector()
+    #     container.selectable(events)
 
-        qpid_thread = Thread(target=container.run)
-        qpid_thread.start()
+    #     qpid_thread = Thread(target=container.run)
+    #     qpid_thread.start()
 
-        logging.info("DONE PUBLISHING!!!") 
+    #     logging.info("DONE PUBLISHING!!!") 
