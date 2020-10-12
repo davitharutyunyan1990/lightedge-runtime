@@ -22,8 +22,7 @@ import yaml
 import requests
 import logging
 
-from lightedge.managers.appmanager.publisher import *
-
+from lightedge.managers.appmanager.helmextensions.publisher import *
 
 from helmpythonclient.client import HelmPythonClient
 
