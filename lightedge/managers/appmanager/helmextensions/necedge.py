@@ -141,7 +141,7 @@ class NECEdge(HelmPythonClient):
 
         return out_release
 
-    def publish_ip(self, message_to_publish, ns_ip)    
+    def publish_ip(self, message_to_publish, ns_ip):    
 
         client = Producer(self, broker_endpoint, topic, message_to_publish, ns_ip)
         container = Container(client)
