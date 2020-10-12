@@ -22,12 +22,13 @@ import yaml
 import requests
 import logging
 
-from publisher import *
+from lightedge.managers.appmanager.publisher import *
 
 
 from helmpythonclient.client import HelmPythonClient
 
 broker_endpoint = "192.168.0.60:5672"
+topic = "NetworkServiceIP"
 
 
 class NECEdge(HelmPythonClient):
@@ -40,7 +41,7 @@ class NECEdge(HelmPythonClient):
 
         self.root = os.environ["EDGE_ROOT_URL"]
         self.releases = dict()
-        self.topic = "NetworkServiceIP"
+
         
 
     def list(self, **kwargs):
@@ -140,14 +141,14 @@ class NECEdge(HelmPythonClient):
 
         return out_release
 
-    # def publish_ip(self, message_to_publish, ns_ip)    
+    def publish_ip(self, message_to_publish, ns_ip)    
 
-    #     client = Producer(broker_endpoint, self.topic, self.message_to_publish, ns_ip)
-    #     container = Container(client)
-    #     events = EventInjector()
-    #     container.selectable(events)
+        client = Producer(self, broker_endpoint, topic, message_to_publish, ns_ip)
+        container = Container(client)
+        events = EventInjector()
+        container.selectable(events)
 
-    #     qpid_thread = Thread(target=container.run)
-    #     qpid_thread.start()
+        qpid_thread = Thread(target=container.run)
+        qpid_thread.start()
 
-    #     logging.info("DONE PUBLISHING!!!") 
+        logging.info("DONE PUBLISHING!!!") 
