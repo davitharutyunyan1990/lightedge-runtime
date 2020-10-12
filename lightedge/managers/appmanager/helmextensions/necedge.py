@@ -22,7 +22,7 @@ import yaml
 import requests
 import logging
 
-from publisher import *
+#from publisher import *
 
 
 from helmpythonclient.client import HelmPythonClient
