@@ -77,10 +77,10 @@ class NECEdge(HelmPythonClient):
 
         logging.info("RESPONSE %s" % (response.json())) 
         logging.info("TYPE -- >",  type(response.json()))  
-        logging.info("IP -- >",  )
-        logging.info("TYPE -- >",  type())
+        #logging.info("IP -- >",  response.json()[])
+        #logging.info("TYPE -- >",  type())
 
-        self.publish_ip(self.message_to_publish, ns_ip)
+        #self.publish_ip(self.message_to_publish, ns_ip)
 
         ####################################################
 
@@ -99,8 +99,8 @@ class NECEdge(HelmPythonClient):
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
 
-        del self.message_to_publish[release_name]
-        self.publish_ip(self.message_to_publish)
+        #del self.message_to_publish[release_name]
+        #self.publish_ip(self.message_to_publish)
 
 
         del self.releases[release_name]
