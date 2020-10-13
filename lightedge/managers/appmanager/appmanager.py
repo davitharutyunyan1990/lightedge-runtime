@@ -23,6 +23,7 @@ import json
 import shutil
 import yaml
 from jsonpath_ng import parse as jsonpath_parse
+import os
 
 from empower_core.service import EService
 from empower_core.launcher import srv
@@ -115,9 +116,12 @@ class AppManager(EService):
                                                          values, srv_endpoints)
                 self._write_values(app_name, namespace_dir, new_values)
 
+                app_host = os.environ[new_values['nodeSelector']['hostname']]    
+
             data, _ = self.helm_client.install(app_name, app_name,
                                                chart_dir=namespace_dir,
                                                namespace=ns_name,
+                                               app_host=os.environ['node1'],
                                                create_namespace=True)
             return data
 

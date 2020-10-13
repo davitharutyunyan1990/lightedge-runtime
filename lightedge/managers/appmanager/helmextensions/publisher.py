@@ -2,6 +2,7 @@ from __future__ import print_function, unicode_literals
 from proton import Message
 from proton.handlers import MessagingHandler
 from proton.reactor import ApplicationEvent, Container, EventInjector
+from time import sleep
 
 from sys import argv
 from time import sleep
@@ -28,9 +29,11 @@ class Producer(MessagingHandler):
         self.sender = event.container.create_sender(conn, 'topic://%s' % self.send_topic)
 
     def on_sendable(self, event):
-             
-        message = Message(body=self.send_message)
 
-        self.sender.send(message)
+        sleep(5)
+
+        if bool(self.send_message):      
+            message = Message(body=self.send_message)
+            self.sender.send(message)
 
         

@@ -38,21 +38,22 @@ class NECEdge(HelmPythonClient):
 
         super().__init__(**kwargs)
 
-        self.root = os.environ["EDGE_ROOT_URL"]
+        self.root = dict()   
         self.releases = dict()
 
-        
 
     def list(self, **kwargs):
 
         return self._get_releases(), None
 
-    def install(self, release_name, chart_name, upgrade=False, **kwargs):
+    def install(self, release_name, chart_name, upgrade=False, app_host, **kwargs):
 
         chart_dir = self.default_chart_dir
         if 'chart_dir' in kwargs:
             chart_dir = kwargs['chart_dir']
 
+
+        self.root[release_name] = app_host
         chart_path = '%s/%s' % (chart_dir, chart_name)
         command = [self.helm, "template", release_name, chart_path]
         k8s_code, err = self._run_command(command)
@@ -63,10 +64,10 @@ class NECEdge(HelmPythonClient):
             json_docs.append(doc)
 
         if upgrade:
-            url = "%s/api/v1/update/app/%s" % (self.root, release_name)
+            url = "%s/api/v1/update/app/%s" % (self.root[release_name], release_name)
             response = requests.put(url, json=json_docs)
         else:
-            url = "%s/api/v1/create/app/%s" % (self.root, release_name)
+            url = "%s/api/v1/create/app/%s" % (self.root[release_name], release_name)
             response = requests.post(url, json=json_docs)
 
         if response.status_code != 200:
@@ -101,7 +102,7 @@ class NECEdge(HelmPythonClient):
 
     def uninstall(self, release_name,  **kwargs):
 
-        url = "%s/api/v1/delete/app/%s" % (self.root, release_name)
+        url = "%s/api/v1/delete/app/%s" % (self.root[release_name], release_name)
         response = requests.delete(url)
 
         if response.status_code != 200:
