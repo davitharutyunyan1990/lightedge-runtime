@@ -88,7 +88,7 @@ class NECEdge(HelmPythonClient):
         self.message_to_publish[release_name] = ns_ip
         logging.info("Publishing IP of %s" % (ns_ip))
 
-        self.publish_ip(self.message_to_publish, release_name, ns_ip)
+        self.publish_ip(self.message_to_publish)
 
         ####################################################
 
