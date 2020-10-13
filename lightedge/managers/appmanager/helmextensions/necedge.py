@@ -74,11 +74,17 @@ class NECEdge(HelmPythonClient):
 
 
         """ Getting Pod's IP address and publishing on the broker """
+        logging.info("RESPONSE %s" % (response.text)) 
+        response_text = response.text
+        response_text = response_text.split(',')
 
-        logging.info("RESPONSE %s" % (response.json())) 
-        logging.info("TYPE -- >",  type(response.json()))  
-        #logging.info("IP -- >",  response.json()[])
-        #logging.info("TYPE -- >",  type())
+        for ns in response_text:
+            ns = ns.split(':')
+            print(ns)
+            if chart_name in ns[0]:
+                ns_ip = ns[1]
+                logging.info("IP ADDRESS %s" % (ns_ip))
+    
 
         #self.publish_ip(self.message_to_publish, ns_ip)
 
