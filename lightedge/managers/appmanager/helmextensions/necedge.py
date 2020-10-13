@@ -46,7 +46,7 @@ class NECEdge(HelmPythonClient):
 
         return self._get_releases(), None
 
-    def install(self, release_name, chart_name, upgrade=False, app_host, **kwargs):
+    def install(self, release_name, chart_name, app_host, upgrade=False, **kwargs):
 
         chart_dir = self.default_chart_dir
         if 'chart_dir' in kwargs:

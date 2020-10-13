@@ -120,8 +120,8 @@ class AppManager(EService):
 
             data, _ = self.helm_client.install(app_name, app_name,
                                                chart_dir=namespace_dir,
-                                               namespace=ns_name,
                                                app_host=os.environ['node1'],
+                                               namespace=ns_name,
                                                create_namespace=True)
             return data
 
