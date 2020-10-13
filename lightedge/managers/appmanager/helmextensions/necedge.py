@@ -26,7 +26,7 @@ from lightedge.managers.appmanager.helmextensions.publisher import *
 
 from helmpythonclient.client import HelmPythonClient
 
-broker_endpoint = "192.168.0.60:5672"
+broker_endpoint = "activemq-service.default.svc.cluster.local:5672"
 topic = "NetworkServiceIP"
 
 
@@ -76,17 +76,19 @@ class NECEdge(HelmPythonClient):
         """ Getting Pod's IP address and publishing on the broker """
         logging.info("RESPONSE %s" % (response.text)) 
         response_text = response.text
-        response_text = response_text.split(',')
+        response_text = response_text.replace("'", "").replace("]", "").split(',')
 
         for ns in response_text:
             ns = ns.split(':')
             print(ns)
-            if chart_name in ns[0]:
+            if release_name in ns[0]:
                 ns_ip = ns[1]
-                logging.info("IP ADDRESS %s" % (ns_ip))
+                logging.info("IP ADDRESS %s" % (ns_ip))      
     
+        self.message_to_publish[release_name] = ns_ip
+        logging.info("Publishing IP of %s" % (ns_ip))
 
-        #self.publish_ip(self.message_to_publish, ns_ip)
+        self.publish_ip(self.message_to_publish, release_name, ns_ip)
 
         ####################################################
 
@@ -105,8 +107,9 @@ class NECEdge(HelmPythonClient):
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
 
-        #del self.message_to_publish[release_name]
-        #self.publish_ip(self.message_to_publish)
+        del self.message_to_publish[release_name]
+        logging.info("Deleting IP of %s" % (ns_ip))
+        self.publish_ip(self.message_to_publish)
 
 
         del self.releases[release_name]
@@ -146,9 +149,9 @@ class NECEdge(HelmPythonClient):
 
         return out_release
 
-    def publish_ip(self, message_to_publish, ns_ip):    
-
-        client = Producer(self, broker_endpoint, topic, message_to_publish, ns_ip)
+    def publish_ip(self, publish_msg): 
+   
+        client = Producer(broker_endpoint, topic, publish_msg)
         container = Container(client)
         events = EventInjector()
         container.selectable(events)
