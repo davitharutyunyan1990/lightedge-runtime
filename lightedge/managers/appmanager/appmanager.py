@@ -24,6 +24,7 @@ import shutil
 import yaml
 from jsonpath_ng import parse as jsonpath_parse
 import os
+import logging
 
 from empower_core.service import EService
 from empower_core.launcher import srv
@@ -115,12 +116,14 @@ class AppManager(EService):
                 new_values = self._values_from_endpoints(ns_name, app_name,
                                                          values, srv_endpoints)
                 self._write_values(app_name, namespace_dir, new_values)
+                #logging.info("SELECTED NODE %s" % (new_values['nodeSelector']['hostname']))
+                # node1
 
                 app_host = os.environ[new_values['nodeSelector']['hostname']]    
 
             data, _ = self.helm_client.install(app_name, app_name,
                                                chart_dir=namespace_dir,
-                                               app_host=os.environ['node1'],
+                                               app_host=app_host,
                                                namespace=ns_name,
                                                create_namespace=True)
             return data
@@ -194,6 +197,13 @@ class AppManager(EService):
                     "values": jp_data}
             response = self.servicemanager.send_request(srv_endpoint["name"],
                                                         timeout, **body)
+            #logging.info("MEAO REPONSE %s" % (response))
+            # {'values': {'nodeSelector': {'hostname': 'node3'}}}
+            # To be changed after demo
+            jsonpath = srv_endpoint["jsonpath1"]
+            parser = jsonpath_parse(jsonpath)
+            logging.info("NEW_VALUES %s" % (new_values))
+
             new_jp_data = response["values"]
             parser.update(new_values, list(new_jp_data.values())[0])
 

@@ -70,6 +70,9 @@ class NECEdge(HelmPythonClient):
             url = "%s/api/v1/create/app/%s" % (self.root[release_name], release_name)
             response = requests.post(url, json=json_docs)
 
+        logging.info("WITHIN INSTALL self.root %s" % (self.root)) 
+        logging.info("STATUS CODE FROM EC %s" % (response.status_code))
+
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
 
@@ -86,12 +89,11 @@ class NECEdge(HelmPythonClient):
                 ns_ip = ns[1]
                 logging.info("IP ADDRESS %s" % (ns_ip))      
     
-        self.message_to_publish[release_name] = ns_ip
-        logging.info("Publishing IP of %s" % (ns_ip))
+                self.message_to_publish[release_name] = ns_ip
+                logging.info("Publishing IP of %s" % (ns_ip))
 
-        self.publish_ip(self.message_to_publish)
+                self.publish_ip(self.message_to_publish)
 
-        ####################################################
 
         release = {"k8s_code": k8s_code,
                    "chart_dir": chart_dir,
@@ -101,6 +103,8 @@ class NECEdge(HelmPythonClient):
         return release, None
 
     def uninstall(self, release_name,  **kwargs):
+
+        logging.info("WITHIN UNINSTALL self.root %s" % (self.root)) 
 
         url = "%s/api/v1/delete/app/%s" % (self.root[release_name], release_name)
         response = requests.delete(url)
