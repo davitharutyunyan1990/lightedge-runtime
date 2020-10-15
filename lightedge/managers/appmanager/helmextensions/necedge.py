@@ -46,14 +46,15 @@ class NECEdge(HelmPythonClient):
 
         return self._get_releases(), None
 
-    def install(self, release_name, chart_name, app_host, upgrade=False, **kwargs):
+    def install(self, release_name, chart_name, app_host=False, upgrade=False, **kwargs):
 
         chart_dir = self.default_chart_dir
         if 'chart_dir' in kwargs:
             chart_dir = kwargs['chart_dir']
 
+        if app_host:
+            self.root[release_name] = app_host
 
-        self.root[release_name] = app_host
         chart_path = '%s/%s' % (chart_dir, chart_name)
         command = [self.helm, "template", release_name, chart_path]
         k8s_code, err = self._run_command(command)
@@ -113,7 +114,7 @@ class NECEdge(HelmPythonClient):
             raise ValueError("Error from NEC Edge API")
 
         del self.message_to_publish[release_name]
-        logging.info("Deleting IP of %s" % (ns_ip))
+        logging.info("Deleting IP of %s" % (release_name))
         self.publish_ip(self.message_to_publish)
 
 

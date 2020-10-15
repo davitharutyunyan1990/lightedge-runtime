@@ -30,8 +30,6 @@ class Producer(MessagingHandler):
 
     def on_sendable(self, event):
 
-        sleep(5)
-
         if bool(self.send_message):      
             message = Message(body=self.send_message)
             self.sender.send(message)

@@ -139,7 +139,7 @@ class AppManager(EService):
 
         namespace_dir = self._get_ns_dir(ns_name)
         self._write_values(app_name, namespace_dir, values)
-        self.helm_client.install(app_name, app_name, upgrade=True,
+        self.helm_client.install(app_name, app_name, upgrade=True, app_host=False,
                                  chart_dir=namespace_dir, namespace=ns_name)
 
     def delete_app(self, app_name, ns_name):
