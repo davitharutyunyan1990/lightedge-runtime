@@ -18,7 +18,7 @@
 """NEC Edge extension."""
 
 import os
-import re
+import json
 import yaml
 import requests
 import logging
