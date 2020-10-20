@@ -18,6 +18,7 @@
 """NEC Edge extension."""
 
 import os
+import re
 import yaml
 import requests
 import logging
@@ -73,25 +74,23 @@ class NECEdge(HelmPythonClient):
 
         logging.info("WITHIN INSTALL self.root %s" % (self.root)) 
         logging.info("STATUS CODE FROM EC %s" % (response.status_code))
+        #logging.info("JSON FROM EC %s" % (json.loads(response.status_code))
 
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
 
 
         """ Getting Pod's IP address and publishing on the broker """
-        logging.info("RESPONSE %s" % (response.text)) 
-        response_text = response.text
-        response_text = response_text.replace("'", "").replace("]", "").split(',')
+        logging.info("RESPONSE TEXT %s" % (response.text)) 
+        response_text = re.findall('\[.*\]$', response.text)[0]
+        response_text = result.replace("'", "").replace("]", "").replace("[", "").replace(" ", "").split(',')
 
         for ns in response_text:
-            ns = ns.split(':')
-            print(ns)
-            if release_name in ns[0]:
-                ns_ip = ns[1]
-                logging.info("IP ADDRESS %s" % (ns_ip))      
+            if release_name in ns:
+                ns_ip = ns.split(':')[1]    
     
                 self.message_to_publish[release_name] = ns_ip
-                logging.info("Publishing IP of %s" % (ns_ip))
+                logging.info("Publishing IP %s of NS %s" % (ns_ip, release_name))
 
                 self.publish_ip(self.message_to_publish)
 
