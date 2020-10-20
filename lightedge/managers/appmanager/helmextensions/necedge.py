@@ -74,25 +74,26 @@ class NECEdge(HelmPythonClient):
 
         logging.info("WITHIN INSTALL self.root %s" % (self.root)) 
         logging.info("STATUS CODE FROM EC %s" % (response.status_code))
-        #logging.info("JSON FROM EC %s" % (json.loads(response.status_code))
+        #logging.info("JSON FROM EC %s" % (json.loads(response.text))
 
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
 
 
         """ Getting Pod's IP address and publishing on the broker """
-        logging.info("RESPONSE TEXT %s" % (response.text)) 
-        response_text = re.findall('\[.*\]$', response.text)[0]
-        response_text = result.replace("'", "").replace("]", "").replace("[", "").replace(" ", "").split(',')
+        response_list = json.loads(response.text)
+        logging.info("RESPONSE LIST %s" % (response_list))
 
-        for ns in response_text:
-            if release_name in ns:
-                ns_ip = ns.split(':')[1]    
-    
-                self.message_to_publish[release_name] = ns_ip
-                logging.info("Publishing IP %s of NS %s" % (ns_ip, release_name))
+        for ns_element in response_list:
+            for pod_name, pod_ip in ns_element.items():
+                if release_name in pod_name:
+                    ns_ip = pod_ip
 
-                self.publish_ip(self.message_to_publish)
+                    self.message_to_publish[release_name] = ns_ip
+                    logging.info("Publishing IP %s of NS %s" % (ns_ip, release_name))
+
+                    self.publish_ip(self.message_to_publish)
+
 
 
         release = {"k8s_code": k8s_code,
