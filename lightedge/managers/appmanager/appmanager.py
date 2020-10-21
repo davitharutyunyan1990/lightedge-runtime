@@ -47,6 +47,8 @@ DEFAULT_HELM_CLASS = "HelmPythonClient"
 class AppManager(EService):
     """App manager."""
 
+    app_ip_addr = {}
+
     HANDLERS = [AppHandler, RepoHandler, ChartFinderHandler, ChartInfoHandler]
 
     def __init__(self, context, service_id, **params):
@@ -115,17 +117,31 @@ class AppManager(EService):
                 values = self._get_values(app_name, namespace_dir)
                 new_values = self._values_from_endpoints(ns_name, app_name,
                                                          values, srv_endpoints)
+
+                # update "new_values" with "app_ip_addr" class variable
+                for srv_endpoint in srv_endpoints:
+                    jsonpath = srv_endpoint["jsonpath2"]
+                    parser = jsonpath_parse(jsonpath)
+                    parser.update(new_values, list(self.app_ip_addr))  
+
+
                 self._write_values(app_name, namespace_dir, new_values)
-                #logging.info("SELECTED NODE %s" % (new_values['nodeSelector']['hostname']))
+
+                logging.info("NEW_VALUES UPDATED %s" % (new_values))
+                logging.info("SELECTED NODE %s" % (new_values['nodeSelector']['hostname']))
                 # node1
 
                 app_host = os.environ[new_values['nodeSelector']['hostname']]    
 
-            data, _ = self.helm_client.install(app_name, app_name,
+            data, app_ips = self.helm_client.install(app_name, app_name,
                                                chart_dir=namespace_dir,
                                                app_host=app_host,
                                                namespace=ns_name,
                                                create_namespace=True)
+
+            # Assign "app_ips" to the class variable "app_ip_addr"
+            self.app_ip_addr = app_ips
+
             return data
 
         except Exception as ex:
@@ -205,7 +221,7 @@ class AppManager(EService):
             logging.info("NEW_VALUES %s" % (new_values))
 
             new_jp_data = response["values"]
-            parser.update(new_values, list(new_jp_data.values())[0])
+            parser.update(new_values, list(new_jp_data.values())[0])        
 
         return new_values
 

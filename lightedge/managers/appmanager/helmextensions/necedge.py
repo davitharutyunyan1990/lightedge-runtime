@@ -92,7 +92,7 @@ class NECEdge(HelmPythonClient):
                     self.message_to_publish[release_name] = ns_ip
                     logging.info("Publishing IP %s of NS %s" % (ns_ip, release_name))
 
-                    self.publish_ip(self.message_to_publish)
+                    #self.publish_ip(self.message_to_publish)
 
 
 
@@ -101,7 +101,7 @@ class NECEdge(HelmPythonClient):
                    "status": "deployed"}
         self.releases[release_name] = release
 
-        return release, None
+        return release, self.message_to_publish
 
     def uninstall(self, release_name,  **kwargs):
 
@@ -115,7 +115,7 @@ class NECEdge(HelmPythonClient):
 
         del self.message_to_publish[release_name]
         logging.info("Deleting IP of %s" % (release_name))
-        self.publish_ip(self.message_to_publish)
+        #self.publish_ip(self.message_to_publish)
 
 
         del self.releases[release_name]
