@@ -15,7 +15,6 @@ import logging
 
 class Producer(MessagingHandler):
 
-    
 
     def __init__(self, server, send_topic, send_message):
         super(Producer, self).__init__()

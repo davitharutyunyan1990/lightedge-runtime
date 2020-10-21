@@ -122,7 +122,7 @@ class AppManager(EService):
                 for srv_endpoint in srv_endpoints:
                     jsonpath = srv_endpoint["jsonpath2"]
                     parser = jsonpath_parse(jsonpath)
-                    parser.update(new_values, list(self.app_ip_addr))  
+                    parser.update(new_values, self.app_ip_addr)  
 
 
                 self._write_values(app_name, namespace_dir, new_values)
