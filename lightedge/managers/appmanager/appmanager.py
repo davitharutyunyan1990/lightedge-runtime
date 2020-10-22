@@ -118,7 +118,6 @@ class AppManager(EService):
                 new_values = self._values_from_endpoints(ns_name, app_name,
                                                          values, srv_endpoints)
 
-                # update "new_values" with "app_ip_addr" class variable
                 for srv_endpoint in srv_endpoints:
                     jsonpath = srv_endpoint["jsonpath2"]
                     parser = jsonpath_parse(jsonpath)
@@ -129,7 +128,6 @@ class AppManager(EService):
 
                 logging.info("NEW_VALUES UPDATED %s" % (new_values))
                 logging.info("SELECTED NODE %s" % (new_values['nodeSelector']['hostname']))
-                # node1
 
                 app_host = os.environ[new_values['nodeSelector']['hostname']]    
 
@@ -139,7 +137,6 @@ class AppManager(EService):
                                                namespace=ns_name,
                                                create_namespace=True)
 
-            # Assign "app_ips" to the class variable "app_ip_addr"
             self.app_ip_addr = app_ips
 
             return data
@@ -213,9 +210,7 @@ class AppManager(EService):
                     "values": jp_data}
             response = self.servicemanager.send_request(srv_endpoint["name"],
                                                         timeout, **body)
-            #logging.info("MEAO REPONSE %s" % (response))
-            # {'values': {'nodeSelector': {'hostname': 'node3'}}}
-            # To be changed after demo
+            # response --> {'values': {'nodeSelector': {'hostname': 'node3'}}}
             jsonpath = srv_endpoint["jsonpath1"]
             parser = jsonpath_parse(jsonpath)
             logging.info("NEW_VALUES %s" % (new_values))
