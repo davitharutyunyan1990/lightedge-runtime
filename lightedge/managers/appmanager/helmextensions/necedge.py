@@ -57,8 +57,8 @@ class NECEdge(HelmPythonClient):
 
         if app_host:
             self.root[release_name] = app_host
-            
-            if app_host is "http://195.37.154.70:31125":
+
+            if "70" in app_host:
                 self.topic[release_name] = "EC1.NetworkServiceIP"
             else:
                 self.topic[release_name] = "EC2.NetworkServiceIP"
@@ -82,8 +82,7 @@ class NECEdge(HelmPythonClient):
 
         logging.info("WITHIN INSTALL self.root %s" % (self.root)) 
         logging.info("STATUS CODE FROM EC %s" % (response.status_code))
-        #logging.info("JSON FROM EC %s" % (json.loads(response.text))
-
+ 
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
 
@@ -105,7 +104,7 @@ class NECEdge(HelmPythonClient):
                     logging.info("Publishing topic %s" % (publish_topic))
                     logging.info("Pubishing message %s" % (self.message_to_publish))
 
-                    #self.publish_ip(publish_topic, self.message_to_publish)
+                    self.publish_ip(publish_topic, self.message_to_publish)
 
 
 
@@ -128,7 +127,7 @@ class NECEdge(HelmPythonClient):
 
         del self.message_to_publish[release_name]
         logging.info("Deleting IP of %s" % (release_name))
-        #self.publish_ip(publish_topic, self.message_to_publish)
+        self.publish_ip(publish_topic, self.message_to_publish)
 
 
         del self.releases[release_name]
