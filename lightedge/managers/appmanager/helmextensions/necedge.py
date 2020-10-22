@@ -28,7 +28,7 @@ from lightedge.managers.appmanager.helmextensions.publisher import *
 from helmpythonclient.client import HelmPythonClient
 
 broker_endpoint = "activemq-service.default.svc.cluster.local:5672"
-topic = "NetworkServiceIP"
+topic = "Domain1.NetworkServiceIP"
 
 
 class NECEdge(HelmPythonClient):
@@ -41,11 +41,13 @@ class NECEdge(HelmPythonClient):
 
         self.root = dict()   
         self.releases = dict()
+        self.topic = dict()
 
 
     def list(self, **kwargs):
 
         return self._get_releases(), None
+
 
     def install(self, release_name, chart_name, app_host=False, upgrade=False, **kwargs):
 
@@ -55,8 +57,14 @@ class NECEdge(HelmPythonClient):
 
         if app_host:
             self.root[release_name] = app_host
+            
+            if app_host is "http://195.37.154.70:31125":
+                self.topic[release_name] = "EC1.NetworkServiceIP"
+            else:
+                self.topic[release_name] = "EC2.NetworkServiceIP"
+        
 
-        chart_path = '%s/%s' % (chart_dir, chart_name)
+        chart_path = '%s/%s' % (chart_dir, release_name)
         command = [self.helm, "template", release_name, chart_path]
         k8s_code, err = self._run_command(command)
 
@@ -89,10 +97,15 @@ class NECEdge(HelmPythonClient):
                 if release_name in pod_name:
                     ns_ip = pod_ip
 
-                    self.message_to_publish[release_name] = ns_ip
-                    logging.info("Publishing IP %s of NS %s" % (ns_ip, release_name))
+                    if release_name is chart_name:
+                        chart_name = self.message_to_publish[release_name][0]
 
-                    #self.publish_ip(self.message_to_publish)
+                    self.message_to_publish[release_name] = [chart_name, ns_ip]
+                    publish_topic = self.topic[release_name]
+                    logging.info("Publishing topic %s" % (publish_topic))
+                    logging.info("Pubishing message %s" % (self.message_to_publish))
+
+                    #self.publish_ip(publish_topic, self.message_to_publish)
 
 
 
@@ -115,7 +128,7 @@ class NECEdge(HelmPythonClient):
 
         del self.message_to_publish[release_name]
         logging.info("Deleting IP of %s" % (release_name))
-        #self.publish_ip(self.message_to_publish)
+        #self.publish_ip(publish_topic, self.message_to_publish)
 
 
         del self.releases[release_name]
@@ -155,9 +168,9 @@ class NECEdge(HelmPythonClient):
 
         return out_release
 
-    def publish_ip(self, publish_msg): 
+    def publish_ip(self, publish_topic, publish_msg): 
    
-        client = Producer(broker_endpoint, topic, publish_msg)
+        client = Producer(broker_endpoint, publish_topic, publish_msg)
         container = Container(client)
         events = EventInjector()
         container.selectable(events)

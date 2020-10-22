@@ -131,7 +131,7 @@ class AppManager(EService):
 
                 app_host = os.environ[new_values['nodeSelector']['hostname']]    
 
-            data, app_ips = self.helm_client.install(app_name, app_name,
+            data, app_ips = self.helm_client.install(app_name, repochart_name,
                                                chart_dir=namespace_dir,
                                                app_host=app_host,
                                                namespace=ns_name,
