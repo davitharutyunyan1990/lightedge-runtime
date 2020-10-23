@@ -97,9 +97,9 @@ class NECEdge(HelmPythonClient):
                     ns_ip = pod_ip
 
                     if release_name is chart_name:
-                        chart_name = self.message_to_publish[release_name][0]
+                        chart_name = self.message_to_publish[release_name]["helm-chart"]
 
-                    self.message_to_publish[release_name] = [chart_name, ns_ip]
+                    self.message_to_publish[release_name] = {"helm-chart":chart_name, "ip":ns_ip}
                     publish_topic = self.topic[release_name]
                     logging.info("Publishing topic %s" % (publish_topic))
                     logging.info("Pubishing message %s" % (self.message_to_publish))
