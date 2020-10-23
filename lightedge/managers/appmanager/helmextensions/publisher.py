@@ -29,7 +29,7 @@ class Producer(MessagingHandler):
 
     def on_sendable(self, event):
 
-        if bool(self.send_message):      
+        if bool(self.send_message['apps']):      
             message = Message(body=self.send_message)
             self.sender.send(message)
 

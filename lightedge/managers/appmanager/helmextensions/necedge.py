@@ -28,7 +28,6 @@ from lightedge.managers.appmanager.helmextensions.publisher import *
 from helmpythonclient.client import HelmPythonClient
 
 broker_endpoint = "activemq-service.default.svc.cluster.local:5672"
-topic = "Domain1.NetworkServiceIP"
 
 
 class NECEdge(HelmPythonClient):
@@ -59,7 +58,7 @@ class NECEdge(HelmPythonClient):
         if app_host:
             self.root[release_name] = app_host
 
-            if "70" in app_host:
+            if "195.37.154.70" in app_host:
                 self.topic[release_name] = "EC1.NetworkServiceIP"
             else:
                 self.topic[release_name] = "EC2.NetworkServiceIP"
@@ -132,7 +131,7 @@ class NECEdge(HelmPythonClient):
 
 
         for count, app in enumerate(self.message_to_publish["apps"],0):
-            if app["appName"] is release_name:
+            if app["appName"] in release_name:
                 del self.message_to_publish["apps"][count]
         
         logging.info("Deleting IP of %s" % (release_name))
