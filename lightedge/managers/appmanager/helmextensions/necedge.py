@@ -34,6 +34,7 @@ topic = "Domain1.NetworkServiceIP"
 class NECEdge(HelmPythonClient):
 
     message_to_publish = {}
+    message_to_publish["apps"] = list()
 
     def __init__(self, **kwargs):
 
@@ -97,15 +98,19 @@ class NECEdge(HelmPythonClient):
                     ns_ip = pod_ip
 
                     if release_name is chart_name:
-                        chart_name = self.message_to_publish[release_name]["helm-chart"]
+                        for count, app in enumerate(self.message_to_publish["apps"],0):
+                            if app["appName"] is release_name:
+                                chart_name = self.message_to_publish["apps"][count]["helm-chart"]
 
-                    self.message_to_publish[release_name] = {"helm-chart":chart_name, "ip":ns_ip}
+
+                    self.message_to_publish["apps"].append({"appName":release_name, "helm-chart": chart_name, "ip": ns_ip})
+
                     publish_topic = self.topic[release_name]
                     logging.info("Publishing topic %s" % (publish_topic))
                     logging.info("Pubishing message %s" % (self.message_to_publish))
+                    message_to_publish_json = json.dumps(self.message_to_publish)
 
-                    self.publish_ip(publish_topic, self.message_to_publish)
-
+                    self.publish_ip(publish_topic, message_to_publish_json)
 
 
         release = {"k8s_code": k8s_code,
@@ -125,9 +130,17 @@ class NECEdge(HelmPythonClient):
         if response.status_code != 200:
             raise ValueError("Error from NEC Edge API")
 
-        del self.message_to_publish[release_name]
+
+        for count, app in enumerate(self.message_to_publish["apps"],0):
+            if app["appName"] is release_name:
+                del self.message_to_publish["apps"][count]
+        
         logging.info("Deleting IP of %s" % (release_name))
-        self.publish_ip(publish_topic, self.message_to_publish)
+
+        message_to_publish_json = json.dumps(self.message_to_publish)
+
+        publish_topic = self.topic[release_name]
+        self.publish_ip(publish_topic, message_to_publish_json)
 
 
         del self.releases[release_name]
