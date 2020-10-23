@@ -108,9 +108,9 @@ class NECEdge(HelmPythonClient):
                     publish_topic = self.topic[release_name]
                     logging.info("Publishing topic %s" % (publish_topic))
                     logging.info("Pubishing message %s" % (self.message_to_publish))
-                    message_to_publish_json = json.dumps(self.message_to_publish)
+    
 
-                    self.publish_ip(publish_topic, message_to_publish_json)
+                    self.publish_ip(publish_topic, self.message_to_publish)
 
 
         release = {"k8s_code": k8s_code,
@@ -137,10 +137,8 @@ class NECEdge(HelmPythonClient):
         
         logging.info("Deleting IP of %s" % (release_name))
 
-        message_to_publish_json = json.dumps(self.message_to_publish)
-
         publish_topic = self.topic[release_name]
-        self.publish_ip(publish_topic, message_to_publish_json)
+        self.publish_ip(publish_topic, self.message_to_publish)
 
 
         del self.releases[release_name]
